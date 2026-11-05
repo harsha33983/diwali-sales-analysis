@@ -1,0 +1,307 @@
+"""
+Plotly Chart Factory Component for Diwali Sales Intelligence Dashboard.
+Generates responsive, interactive Plotly visualizations with custom Diwali theme.
+"""
+
+import plotly.express as px
+import plotly.graph_objects as go
+import pandas as pd
+import numpy as np
+
+# Theme Color Palette
+THEME = {
+    "bg": "rgba(0,0,0,0)",
+    "card_bg": "#1E293B",
+    "text": "#F8FAFC",
+    "grid": "#334155",
+    "orange": "#E67E22",
+    "gold": "#F59E0B",
+    "navy": "#38BDF8",
+    "purple": "#A855F7",
+    "red": "#EF4444",
+    "green": "#10B981"
+}
+
+CHART_LAYOUT = dict(
+    paper_bgcolor=THEME["bg"],
+    plot_bgcolor=THEME["bg"],
+    font=dict(color=THEME["text"], family="Inter, sans-serif"),
+    margin=dict(l=20, r=20, t=40, b=20),
+    xaxis=dict(gridcolor=THEME["grid"], zeroline=False),
+    yaxis=dict(gridcolor=THEME["grid"], zeroline=False),
+    legend=dict(
+        bgcolor="rgba(30, 41, 59, 0.7)",
+        bordercolor=THEME["grid"],
+        borderwidth=1,
+        font=dict(size=11)
+    )
+)
+
+
+def plot_revenue_by_state(df: pd.DataFrame, top_n: int = 10) -> go.Figure:
+    """Horizontal bar chart showing top states by sales revenue."""
+    state_df = df.groupby("State").agg(
+        Revenue=("Amount", "sum"),
+        Orders=("Orders", "sum"),
+        Transactions=("User_ID", "count")
+    ).sort_values(by="Revenue", ascending=True).tail(top_n).reset_index()
+
+    fig = go.Figure(go.Bar(
+        x=state_df["Revenue"],
+        y=state_df["State"],
+        orientation="h",
+        marker=dict(
+            color=state_df["Revenue"],
+            colorscale=[[0, "#B45309"], [0.5, "#F59E0B"], [1, "#E67E22"]],
+            showscale=False
+        ),
+        text=[f"₹{v:,.0f}" for v in state_df["Revenue"]],
+        textposition="outside",
+        hovertemplate="<b>State</b>: %{y}<br><b>Revenue</b>: ₹%{x:,.2f}<extra></extra>"
+    ))
+
+    fig.update_layout(
+        **CHART_LAYOUT,
+        title=dict(text=f"Top {top_n} States by Festival Revenue (INR)", font=dict(size=14, color="#F8FAFC")),
+        xaxis_title="Total Revenue (INR)",
+        yaxis_title="",
+        height=400
+    )
+    return fig
+
+
+def plot_sales_by_gender(df: pd.DataFrame) -> go.Figure:
+    """Donut chart showing revenue share between Female and Male customers."""
+    gender_df = df.groupby("Gender_Desc")["Amount"].sum().reset_index()
+
+    fig = go.Figure(go.Pie(
+        labels=gender_df["Gender_Desc"],
+        values=gender_df["Amount"],
+        hole=0.6,
+        marker=dict(colors=["#E67E22", "#38BDF8"]),
+        textinfo="label+percent",
+        hovertemplate="<b>Gender</b>: %{label}<br><b>Revenue</b>: ₹%{value:,.2f} (%{percent})<extra></extra>"
+    ))
+
+    fig.update_layout(
+        **CHART_LAYOUT,
+        title=dict(text="Revenue Share by Gender", font=dict(size=14, color="#F8FAFC")),
+        showlegend=True,
+        height=350
+    )
+    return fig
+
+
+def plot_sales_by_age_gender(df: pd.DataFrame) -> go.Figure:
+    """Grouped bar chart showing total spend across Age Groups split by Gender."""
+    age_df = df.groupby(["Age Group", "Gender_Desc"])["Amount"].sum().reset_index()
+    age_order = ["0-17", "18-25", "26-35", "36-45", "46-50", "51-55", "55+"]
+
+    fig = px.bar(
+        age_df,
+        x="Age Group",
+        y="Amount",
+        color="Gender_Desc",
+        barmode="group",
+        category_orders={"Age Group": age_order},
+        color_discrete_map={"Female": "#E67E22", "Male": "#38BDF8"},
+        labels={"Amount": "Revenue (INR)", "Gender_Desc": "Gender"},
+        title="Revenue by Age Group and Gender"
+    )
+
+    fig.update_layout(
+        **CHART_LAYOUT,
+        height=380,
+        hovermode="x unified"
+    )
+    return fig
+
+
+def plot_category_revenue(df: pd.DataFrame, top_n: int = 10) -> go.Figure:
+    """Bar chart showing top revenue-generating product categories."""
+    cat_df = df.groupby("Product_Category").agg(
+        Revenue=("Amount", "sum"),
+        Orders=("Orders", "sum")
+    ).sort_values(by="Revenue", ascending=False).head(top_n).reset_index()
+
+    fig = go.Figure(go.Bar(
+        x=cat_df["Product_Category"],
+        y=cat_df["Revenue"],
+        marker=dict(
+            color=cat_df["Revenue"],
+            colorscale=[[0, "#475569"], [0.5, "#D97706"], [1, "#F59E0B"]],
+            showscale=False
+        ),
+        text=[f"₹{v/1e6:.1f}M" for v in cat_df["Revenue"]],
+        textposition="outside",
+        hovertemplate="<b>Category</b>: %{x}<br><b>Revenue</b>: ₹%{y:,.2f}<extra></extra>"
+    ))
+
+    fig.update_layout(
+        **CHART_LAYOUT,
+        title=dict(text=f"Top {top_n} Product Categories by Sales Revenue", font=dict(size=14, color="#F8FAFC")),
+        xaxis_title="",
+        yaxis_title="Revenue (INR)",
+        xaxis_tickangle=-30,
+        height=400
+    )
+    return fig
+
+
+def plot_occupation_sales(df: pd.DataFrame) -> go.Figure:
+    """Horizontal bar chart showing revenue generated by customer professions."""
+    occ_df = df.groupby("Occupation")["Amount"].sum().sort_values(ascending=True).reset_index()
+
+    fig = go.Figure(go.Bar(
+        x=occ_df["Amount"],
+        y=occ_df["Occupation"],
+        orientation="h",
+        marker=dict(color="#38BDF8"),
+        text=[f"₹{v/1e6:.1f}M" for v in occ_df["Amount"]],
+        textposition="outside",
+        hovertemplate="<b>Occupation</b>: %{y}<br><b>Revenue</b>: ₹%{x:,.2f}<extra></extra>"
+    ))
+
+    fig.update_layout(
+        **CHART_LAYOUT,
+        title=dict(text="Revenue Distribution by Occupation Sector", font=dict(size=14, color="#F8FAFC")),
+        xaxis_title="Total Revenue (INR)",
+        yaxis_title="",
+        height=450
+    )
+    return fig
+
+
+def plot_amount_distribution(df: pd.DataFrame) -> go.Figure:
+    """Histogram with marginal boxplot showing ticket amount spread."""
+    fig = px.histogram(
+        df,
+        x="Amount",
+        nbins=40,
+        marginal="box",
+        color_discrete_sequence=["#F59E0B"],
+        title="Purchase Amount Distribution & Quartile Spread"
+    )
+
+    fig.update_layout(
+        **CHART_LAYOUT,
+        height=380,
+        xaxis_title="Transaction Amount (INR)",
+        yaxis_title="Count of Transactions"
+    )
+    return fig
+
+
+def plot_top_products(df: pd.DataFrame, top_n: int = 10) -> go.Figure:
+    """Bar chart of top-selling individual SKUs."""
+    prod_df = df.groupby(["Product_ID", "Product_Category"]).agg(
+        Revenue=("Amount", "sum"),
+        Orders=("Orders", "sum")
+    ).sort_values(by="Revenue", ascending=False).head(top_n).reset_index()
+
+    fig = go.Figure(go.Bar(
+        x=prod_df["Product_ID"],
+        y=prod_df["Revenue"],
+        marker=dict(color="#E67E22"),
+        customdata=prod_df[["Product_Category", "Orders"]],
+        hovertemplate="<b>Product ID</b>: %{x}<br><b>Category</b>: %{customdata[0]}<br><b>Units Ordered</b>: %{customdata[1]:,}<br><b>Revenue</b>: ₹%{y:,.2f}<extra></extra>"
+    ))
+
+    fig.update_layout(
+        **CHART_LAYOUT,
+        title=dict(text=f"Top {top_n} High-Yield SKUs (Product IDs)", font=dict(size=14, color="#F8FAFC")),
+        xaxis_title="SKU Identifier",
+        yaxis_title="Revenue (INR)",
+        xaxis_tickangle=-35,
+        height=380
+    )
+    return fig
+
+
+def plot_customer_clusters(cust_df: pd.DataFrame) -> go.Figure:
+    """Interactive scatter plot of customer clusters."""
+    fig = px.scatter(
+        cust_df,
+        x="Transactions_Count",
+        y="Total_Spend",
+        color="Segment_Name",
+        size="Total_Orders",
+        hover_data=["User_ID", "Avg_Age", "Primary_Occupation", "Primary_Category"],
+        color_discrete_sequence=["#EF4444", "#F59E0B", "#38BDF8", "#10B981"],
+        log_y=True,
+        title="Customer Persona Clusters (Spend vs Transaction Frequency)"
+    )
+
+    fig.update_layout(
+        **CHART_LAYOUT,
+        height=480,
+        xaxis_title="Total Transactions Count",
+        yaxis_title="Total Customer Spend (INR, Log Scale)"
+    )
+    return fig
+
+
+def plot_actual_vs_predicted(pred_df: pd.DataFrame) -> go.Figure:
+    """Evaluation scatter plot showing actual vs predicted purchase amounts."""
+    sample_df = pred_df.sample(min(800, len(pred_df)), random_state=42)
+    max_val = max(sample_df["Actual_Amount"].max(), sample_df["Predicted_Amount"].max())
+
+    fig = go.Figure()
+
+    # Scatter points
+    fig.add_trace(go.Scatter(
+        x=sample_df["Actual_Amount"],
+        y=sample_df["Predicted_Amount"],
+        mode="markers",
+        marker=dict(color="#F59E0B", opacity=0.5, size=6),
+        name="Test Prediction",
+        hovertemplate="Actual: ₹%{x:,.0f}<br>Predicted: ₹%{y:,.0f}<extra></extra>"
+    ))
+
+    # Reference 45 degree identity line
+    fig.add_trace(go.Scatter(
+        x=[0, max_val],
+        y=[0, max_val],
+        mode="lines",
+        line=dict(color="#EF4444", dash="dash", width=2),
+        name="Perfect Fit (y = x)"
+    ))
+
+    fig.update_layout(
+        **CHART_LAYOUT,
+        title=dict(text="Model Diagnostic: Actual vs Predicted Amount (Test Set)", font=dict(size=14, color="#F8FAFC")),
+        xaxis_title="Actual Amount (INR)",
+        yaxis_title="Predicted Amount (INR)",
+        height=420
+    )
+    return fig
+
+
+def plot_feature_importance(feat_list: list) -> go.Figure:
+    """Horizontal bar chart of top model feature importances."""
+    feat_df = pd.DataFrame(feat_list).head(12)
+    feat_df["Clean_Feature"] = feat_df["Feature"].str.replace("cat__", "").str.replace("num__", "")
+
+    fig = go.Figure(go.Bar(
+        x=feat_df["Importance"],
+        y=feat_df["Clean_Feature"],
+        orientation="h",
+        marker=dict(
+            color=feat_df["Importance"],
+            colorscale=[[0, "#334155"], [0.5, "#D97706"], [1, "#F59E0B"]],
+            showscale=False
+        ),
+        hovertemplate="<b>Feature</b>: %{y}<br><b>Importance</b>: %{x:.4f}<extra></extra>"
+    ))
+
+    fig.update_layout(
+        **CHART_LAYOUT,
+        title=dict(text="Top Predictors of Diwali Purchase Amount (ML Feature Impact)", font=dict(size=14, color="#F8FAFC")),
+        xaxis_title="Relative Model Weight / Importance",
+        yaxis_title="",
+        height=400
+    )
+    fig.update_yaxes(autorange="reversed")
+    return fig
+
+

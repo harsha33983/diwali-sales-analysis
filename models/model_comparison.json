@@ -1,0 +1,45 @@
+{
+    "best_model_name": "Gradient Boosting Regressor",
+    "comparison": {
+        "Linear Regression": {
+            "Train_MAE": 1988.66,
+            "Train_RMSE": 2680.71,
+            "Train_R2": 0.7089,
+            "Test_MAE": 1994.98,
+            "Test_RMSE": 2684.82,
+            "Test_R2": 0.711
+        },
+        "Random Forest Regressor": {
+            "Train_MAE": 2024.93,
+            "Train_RMSE": 2650.34,
+            "Train_R2": 0.7155,
+            "Test_MAE": 2118.38,
+            "Test_RMSE": 2790.5,
+            "Test_R2": 0.6878
+        },
+        "Gradient Boosting Regressor": {
+            "Train_MAE": 1973.72,
+            "Train_RMSE": 2657.11,
+            "Train_R2": 0.714,
+            "Test_MAE": 1990.8,
+            "Test_RMSE": 2675.78,
+            "Test_R2": 0.713
+        }
+    },
+    "features": {
+        "numerical": [
+            "Age",
+            "Orders"
+        ],
+        "categorical": [
+            "Gender",
+            "Age Group",
+            "Marital_Status",
+            "State",
+            "Zone",
+            "Occupation",
+            "Product_Category"
+        ],
+        "all_encoded_count": 67
+    }
+}

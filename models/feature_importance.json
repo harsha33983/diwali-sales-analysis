@@ -1,0 +1,82 @@
+[
+    {
+        "Feature": "Product_Category_Food",
+        "Importance": 0.25010003933877767
+    },
+    {
+        "Feature": "Product_Category_Footwear & Shoes",
+        "Importance": 0.2270206868759944
+    },
+    {
+        "Feature": "Product_Category_Furniture",
+        "Importance": 0.1016474822426257
+    },
+    {
+        "Feature": "Product_Category_Auto",
+        "Importance": 0.07820380921077323
+    },
+    {
+        "Feature": "Product_Category_Household items",
+        "Importance": 0.06331901562416799
+    },
+    {
+        "Feature": "Product_Category_Clothing & Apparel",
+        "Importance": 0.044341669641868656
+    },
+    {
+        "Feature": "Product_Category_Pet Care",
+        "Importance": 0.03889855187693778
+    },
+    {
+        "Feature": "Product_Category_Office",
+        "Importance": 0.03391747699573085
+    },
+    {
+        "Feature": "Product_Category_Beauty",
+        "Importance": 0.03336784377758035
+    },
+    {
+        "Feature": "Product_Category_Stationery",
+        "Importance": 0.02708404830615399
+    },
+    {
+        "Feature": "Product_Category_Tupperware",
+        "Importance": 0.023546677578331864
+    },
+    {
+        "Feature": "Product_Category_Electronics & Gadgets",
+        "Importance": 0.01987767501575111
+    },
+    {
+        "Feature": "Product_Category_Games & Toys",
+        "Importance": 0.019303907583426327
+    },
+    {
+        "Feature": "Product_Category_Veterinary",
+        "Importance": 0.01912878868445472
+    },
+    {
+        "Feature": "Product_Category_Hand & Power Tools",
+        "Importance": 0.008014056854710632
+    },
+    {
+        "Feature": "Orders",
+        "Importance": 0.003224579924490701
+    },
+    {
+        "Feature": "Product_Category_Sports Products",
+        "Importance": 0.002940956914565071
+    },
+    {
+        "Feature": "Age",
+        "Importance": 0.0010885270531175997
+    },
+    {
+        "Feature": "Product_Category_Books",
+        "Importance": 0.001027893236604221
+    },
+    {
+        "Feature": "Product_Category_Decor",
+        "Importance": 0.000885962456516522
+    }
+]
